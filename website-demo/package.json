@@ -1,0 +1,12 @@
+{
+  "name": "yifa-website-demo",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5175 --strictPort",
+    "preview": "vite preview --host 127.0.0.1 --port 5175"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}

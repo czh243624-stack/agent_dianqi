@@ -1,0 +1,325 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id          String     @id @default(cuid())
+  company     String
+  country     String?
+  contactName String?
+  email       String?
+  phone       String?
+  channel     String?
+  leadGrade   String?
+  productInterest String?
+  applicationScenario String?
+  lastIntent  String?
+  followUpStatus String @default("open")
+  nextFollowUpAt DateTime?
+  notes       String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  inquiries   Inquiry[]
+  emails      EmailMessage[]
+  quotes      HistoricalQuote[]
+  touchpoints CustomerTouchpoint[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  model       String   @unique
+  type        String
+  capacityKva Float?
+  voltagePrim String?
+  voltageSec  String?
+  frequency   String?
+  cooling     String?
+  phase       String?
+  standard    String?
+  summary     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  specs       ProductSpec[]
+  certLinks   CertificationProduct[]
+  quotes      HistoricalQuote[]
+}
+
+model ProductSpec {
+  id        String  @id @default(cuid())
+  productId String
+  name      String
+  value     String
+  unit      String?
+  source    String?
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model Certification {
+  id         String   @id @default(cuid())
+  name       String
+  market     String?
+  modelScope String?
+  validUntil DateTime?
+  fileUrl    String?
+  summary    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  products   CertificationProduct[]
+}
+
+model CertificationProduct {
+  id              String         @id @default(cuid())
+  certificationId String
+  productId       String
+  certification   Certification  @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+  product         Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([certificationId, productId])
+}
+
+model QuoteRule {
+  id         String   @id @default(cuid())
+  productType String
+  region     String?
+  currency   String   @default("USD")
+  minMargin  Float?
+  validDays  Int      @default(15)
+  approver   String?
+  note       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model HistoricalQuote {
+  id             String    @id @default(cuid())
+  customerId     String?
+  productId      String?
+  customerRegion String?
+  price          Float
+  currency       String    @default("USD")
+  quantity       Int?
+  incoterm       String?
+  result         String?
+  quotedAt       DateTime  @default(now())
+  customer       Customer? @relation(fields: [customerId], references: [id])
+  product        Product?  @relation(fields: [productId], references: [id])
+}
+
+model Inquiry {
+  id               String   @id @default(cuid())
+  channel          String
+  externalId       String?
+  customerId       String?
+  buyerCompany     String?
+  buyerName        String?
+  buyerEmail       String?
+  buyerCountry     String?
+  rawText          String
+  extractedJson    String?
+  painPointsJson   String?
+  missingQuestionsJson String?
+  businessIntent   String?
+  intentConfidence Float?
+  productType      String?
+  productTypeConfidence Float?
+  productTypeNeedsConfirmation Boolean @default(false)
+  applicationScenario String?
+  scenarioConfidence Float?
+  semanticSummary String?
+  parameterChecklistJson String?
+  analysisSkillsJson String?
+  leadGrade        String?
+  leadScore        Int?
+  leadReasonsJson  String?
+  followUpAdvice   String?
+  customerProfileJson String?
+  recommendedModel String?
+  quoteHint        String?
+  draftReply       String?
+  status           String   @default("new")
+  owner            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  customer         Customer? @relation(fields: [customerId], references: [id])
+  sourceHits       InquirySourceHit[]
+  emails           EmailMessage[]
+  approvals        ApprovalRecord[]
+  touchpoints      CustomerTouchpoint[]
+
+  @@index([status])
+  @@index([channel])
+  @@index([leadGrade])
+}
+
+model KnowledgeDocument {
+  id          String   @id @default(cuid())
+  sourceType  String
+  title       String
+  content     String
+  tagsJson    String   @default("[]")
+  visibility  String   @default("internal")
+  version     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([sourceType])
+}
+
+model InquirySourceHit {
+  id        String  @id @default(cuid())
+  inquiryId String
+  sourceType String
+  sourceId  String
+  title     String
+  snippet   String
+  version   String?
+  inquiry   Inquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+
+  @@index([inquiryId])
+}
+
+model EmailMessage {
+  id                String    @id @default(cuid())
+  direction         String
+  provider          String    @default("mock")
+  providerMessageId String?
+  customerId        String?
+  inquiryId         String?
+  fromAddr          String?
+  toAddr            String?
+  subject           String?
+  body              String?
+  status            String    @default("queued")
+  sentAt            DateTime?
+  createdAt         DateTime  @default(now())
+  customer          Customer? @relation(fields: [customerId], references: [id])
+  inquiry           Inquiry?  @relation(fields: [inquiryId], references: [id])
+
+  @@index([direction, status])
+}
+
+model CustomerTouchpoint {
+  id         String   @id @default(cuid())
+  customerId String?
+  inquiryId  String?
+  channel    String
+  direction  String
+  summary    String
+  actor      String?
+  nextAction String?
+  createdAt  DateTime @default(now())
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  inquiry    Inquiry? @relation(fields: [inquiryId], references: [id])
+
+  @@index([customerId])
+  @@index([inquiryId])
+}
+
+model ApprovalRecord {
+  id         String   @id @default(cuid())
+  objectType String
+  objectId   String
+  inquiryId  String?
+  action     String
+  actor      String
+  comment    String?
+  beforeJson String?
+  afterJson  String?
+  createdAt  DateTime @default(now())
+  inquiry    Inquiry? @relation(fields: [inquiryId], references: [id])
+
+  @@index([objectType, objectId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actor      String
+  action     String
+  objectType String
+  objectId   String?
+  beforeJson String?
+  afterJson  String?
+  createdAt  DateTime @default(now())
+
+  @@index([objectType, objectId])
+}
+
+model IntegrationInbox {
+  id          String   @id @default(cuid())
+  channel     String
+  externalId  String?
+  payloadJson String
+  processed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([channel, processed])
+}
+
+/// Agent 配置（设置页可增改，持久化保留）
+model AgentConfig {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  name          String
+  type          String
+  description   String?
+  enabled       Boolean  @default(true)
+  systemPrompt  String?
+  modelProvider String   @default("rules")
+  modelName     String   @default("local-rules")
+  temperature   Float    @default(0.2)
+  channelsJson  String   @default("[]")
+  extraJson     String?
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+/// 全局系统设置（公司信息、发件人等）
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+/// 工作台登录账号（演示环境本地账号）
+model WorkbenchUser {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  passwordSalt String
+  displayName  String
+  title        String
+  avatarText   String
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+}
+
+/// AI 助手会话，刷新后保留聊天记录
+model AssistantSession {
+  id        String                 @id @default(cuid())
+  userId    String?
+  title     String
+  language  String                 @default("zh")
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+  messages  AssistantChatMessage[]
+}
+
+model AssistantChatMessage {
+  id        String            @id @default(cuid())
+  sessionId String
+  role      String
+  content   String
+  createdAt DateTime          @default(now())
+  session   AssistantSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}

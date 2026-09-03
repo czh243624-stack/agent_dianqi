@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yifa Electric · Power Transformers</title>
+    <meta
+      name="description"
+      content="Yifa Electric manufactures oil-immersed and dry-type power transformers for utilities and EPCs worldwide."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <!--
+      THESIS: Overseas buyers request transformer specs from a factory counter, not a SaaS landing.
+      OWN-WORLD: Cool workshop light, steel slate + industrial teal, Archivo display / Public Sans UI, split catalog|RFQ desk.
+      STORY: See the product line, fill one RFQ, land in the export desk as website_form.
+      FIRST VIEWPORT: Full-bleed transformer bay left; Yifa brand + one line + RFQ form right as primary action.
+      FORM: Split catalog counter (surface candidate 5); seed 670fb861.
+      FINISH: demo site ships with working webhook; polish later if needed.
+    -->
+    <div class="site">
+      <header class="topbar">
+        <a class="brand" href="#top">
+          <span class="mark" aria-hidden="true">YF</span>
+          <span class="brand-text">
+            <strong>Yifa Electric</strong>
+            <small>Power Transformers · Export</small>
+          </span>
+        </a>
+        <nav class="nav" aria-label="Primary">
+          <a href="#products">Products</a>
+          <a href="#certs">Certifications</a>
+          <a href="#rfq">Request Quote</a>
+        </nav>
+      </header>
+
+      <main id="top">
+        <section class="split-hero" aria-label="Factory and inquiry">
+          <div class="hero-visual">
+            <img
+              src="/assets/hero-transformer.png"
+              alt="Oil-immersed power transformer in a Yifa Electric factory bay"
+            />
+            <div class="hero-caption">
+              <p>Oil-immersed · Dry-type · Custom ratings</p>
+            </div>
+          </div>
+
+          <aside class="hero-desk" id="rfq">
+            <div class="desk-head">
+              <h1>Yifa Electric</h1>
+              <p>
+                Tell us the rating, voltage, and quantity. Our export desk replies with a human-reviewed quotation —
+                never an automatic price promise.
+              </p>
+            </div>
+
+            <form id="inquiry-form" class="rfq-form" novalidate>
+              <div class="field-row">
+                <label>
+                  Company
+                  <input name="company" type="text" autocomplete="organization" required placeholder="Acme Power Ltd." />
+                </label>
+                <label>
+                  Contact name
+                  <input name="name" type="text" autocomplete="name" required placeholder="James Okoro" />
+                </label>
+              </div>
+              <div class="field-row">
+                <label>
+                  Work email
+                  <input name="email" type="email" autocomplete="email" required placeholder="james@acmepower.com" />
+                </label>
+                <label>
+                  Country
+                  <input name="country" type="text" autocomplete="country-name" required placeholder="Nigeria" />
+                </label>
+              </div>
+              <label>
+                Product interest
+                <select name="product" required>
+                  <option value="">Select a line</option>
+                  <option value="Oil-immersed distribution transformer">Oil-immersed distribution</option>
+                  <option value="Dry-type transformer">Dry-type</option>
+                  <option value="Power transformer 10–110kV">Power transformer 10–110kV</option>
+                  <option value="Custom / project package">Custom / project package</option>
+                </select>
+              </label>
+              <label>
+                Project details
+                <textarea
+                  name="message"
+                  rows="5"
+                  required
+                  placeholder="Example: 2 × 2500kVA, 33/11kV, Dyn11, ONAN, outdoor, for a utility substation. Need IEC drawings and lead time."
+                ></textarea>
+              </label>
+
+              <div class="form-foot">
+                <p class="form-note" id="form-status" role="status" aria-live="polite">
+                  Submissions go to the Yifa export desk as website inquiries.
+                </p>
+                <button class="btn-primary" type="submit" id="submit-btn">Send inquiry</button>
+              </div>
+            </form>
+          </aside>
+        </section>
+
+        <section class="products" id="products">
+          <div class="section-head">
+            <h2>Product lines for export projects</h2>
+            <p>Ratings and cooling can be tailored. Final commercial terms are confirmed by the desk after review.</p>
+          </div>
+          <div class="product-rail" role="list">
+            <article class="product-item" role="listitem">
+              <h3>Oil-immersed distribution</h3>
+              <p>50–2500kVA class for utilities and industrial feeders. ONAN / ONAF options.</p>
+            </article>
+            <article class="product-item" role="listitem">
+              <h3>Dry-type</h3>
+              <p>Indoor and fire-sensitive sites. Cast-resin and VPI builds available on request.</p>
+            </article>
+            <article class="product-item" role="listitem">
+              <h3>Power transformers</h3>
+              <p>10–110kV project units with factory testing and packing for ocean freight.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="certs" id="certs">
+          <div class="section-head">
+            <h2>Certifications on request</h2>
+            <p>Ask for the documents that match your market. We do not auto-claim certificates in replies.</p>
+          </div>
+          <ul class="cert-list">
+            <li>ISO 9001</li>
+            <li>IEC type tests</li>
+            <li>CE / country-specific packs</li>
+            <li>Factory inspection support</li>
+          </ul>
+        </section>
+      </main>
+
+      <footer class="site-foot">
+        <div>
+          <strong>Yifa Electric</strong>
+          <span>Independent site demo · feeds the export desk</span>
+        </div>
+        <a href="http://127.0.0.1:5173/" target="_blank" rel="noreferrer">Open export desk</a>
+      </footer>
+    </div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
