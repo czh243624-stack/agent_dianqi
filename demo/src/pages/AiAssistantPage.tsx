@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type MouseEvent as ReactMouseEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
   chatAssistantSession,
   createAssistantSession,
@@ -13,6 +13,7 @@ import { readLanguagePreference, saveLanguagePreference, type UiLanguage } from 
 import { toPlainReply } from "../plainReply";
 
 type Language = UiLanguage;
+type SessionMenu = { id: string; x: number; y: number } | null;
 
 const LAST_SESSION_KEY = "leeec.assistant.sessionId";
 
@@ -80,6 +81,7 @@ export function AiAssistantPage() {
   const [error, setError] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftTitle, setDraftTitle] = useState("");
+  const [sessionMenu, setSessionMenu] = useState<SessionMenu>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const text = useMemo(() => COPY[language], [language]);
 
@@ -130,7 +132,33 @@ export function AiAssistantPage() {
     node.scrollTop = node.scrollHeight;
   }, [messages, sending, activeId]);
 
+  useEffect(() => {
+    const close = () => setSessionMenu(null);
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
+    };
+    document.addEventListener("click", close);
+    document.addEventListener("contextmenu", close);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("click", close);
+      document.removeEventListener("contextmenu", close);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, []);
+
+  const openSessionMenu = (event: ReactMouseEvent, session: AssistantSessionSummary) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setSessionMenu({
+      id: session.id,
+      x: Math.min(event.clientX, window.innerWidth - 148),
+      y: Math.min(event.clientY, window.innerHeight - 98),
+    });
+  };
+
   const startRename = (session: AssistantSessionSummary) => {
+    setSessionMenu(null);
     setEditingId(session.id);
     setDraftTitle(session.title);
   };
@@ -159,6 +187,7 @@ export function AiAssistantPage() {
   };
 
   const handleDelete = async (id: string) => {
+    setSessionMenu(null);
     if (!window.confirm(text.confirmDelete)) return;
     try {
       await deleteAssistantSession(id);
@@ -223,12 +252,18 @@ export function AiAssistantPage() {
         </div>
         <div className="assistant-session-list">
           {sessions.map((session) => (
-            <div className={`assistant-session-item${session.id === activeId ? " active" : ""}`} key={session.id}>
+            <div
+              className={`assistant-session-item${session.id === activeId ? " active" : ""}`}
+              key={session.id}
+              onContextMenu={(event) => openSessionMenu(event, session)}
+              title="右键管理会话"
+            >
               {editingId === session.id ? (
                 <input
                   className="ry-input"
                   autoFocus
                   value={draftTitle}
+                  onFocus={(event) => event.currentTarget.select()}
                   onChange={(event) => setDraftTitle(event.target.value)}
                   onBlur={() => commitRename(session.id).catch(() => undefined)}
                   onKeyDown={(event) => {
@@ -245,18 +280,34 @@ export function AiAssistantPage() {
                   <small>{session.preview || "—"}</small>
                 </button>
               )}
-              <div className="assistant-session-actions">
-                <button type="button" onClick={() => startRename(session)}>
-                  {text.rename}
-                </button>
-                <button type="button" onClick={() => handleDelete(session.id).catch(() => undefined)}>
-                  {text.remove}
-                </button>
-              </div>
             </div>
           ))}
           {!sessions.length && !loading ? <div className="muted">{text.emptySession}</div> : null}
         </div>
+        {sessionMenu ? (
+          <div
+            className="assistant-context-menu"
+            style={{ left: sessionMenu.x, top: sessionMenu.y }}
+            onClick={(event) => event.stopPropagation()}
+            onContextMenu={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                const session = sessions.find((item) => item.id === sessionMenu.id);
+                if (session) startRename(session);
+              }}
+            >
+              {text.rename}
+            </button>
+            <button type="button" className="danger" onClick={() => handleDelete(sessionMenu.id).catch(() => undefined)}>
+              {text.remove}
+            </button>
+          </div>
+        ) : null}
       </aside>
 
       <div className="ry-card assistant-chat-card">

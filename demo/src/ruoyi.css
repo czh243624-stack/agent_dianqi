@@ -821,6 +821,7 @@ img.ry-avatar,
   align-items: stretch;
 }
 .assistant-sessions {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -858,6 +859,10 @@ img.ry-avatar,
   border-color: #5d47d8;
   background: rgba(108, 88, 232, 0.16);
 }
+.assistant-session-item:focus-within,
+.assistant-session-item:hover {
+  border-color: rgba(108, 88, 232, 0.42);
+}
 .assistant-session-open {
   width: 100%;
   border: 0;
@@ -881,20 +886,33 @@ img.ry-avatar,
   color: var(--ry-muted);
   font-size: 12px;
 }
-.assistant-session-actions {
+.assistant-context-menu {
+  position: fixed;
+  z-index: 1200;
+  width: 136px;
+  padding: 6px;
+  border: 1px solid var(--ry-border);
+  border-radius: 12px;
+  background: var(--ry-popover);
+  box-shadow: var(--ry-shadow);
+}
+.assistant-context-menu button {
+  width: 100%;
+  height: 34px;
   display: flex;
-  gap: 8px;
-  margin-top: 6px;
-}
-.assistant-session-actions button {
+  align-items: center;
+  padding: 0 10px;
   border: 0;
+  border-radius: 9px;
   background: transparent;
-  color: var(--ry-muted);
-  font-size: 12px;
-  padding: 0;
+  color: var(--ry-text);
+  text-align: left;
 }
-.assistant-session-actions button:hover {
-  color: var(--ry-menu-hover);
+.assistant-context-menu button:hover {
+  background: var(--ry-hover);
+}
+.assistant-context-menu button.danger {
+  color: var(--ry-danger);
 }
 .assistant-chat-card {
   display: flex;
